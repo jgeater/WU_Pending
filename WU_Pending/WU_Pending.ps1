@@ -98,7 +98,7 @@ function Get-PendingUpdates {
 				Categories = (Get-UpdateCategories -Update $Update)
 			}
 
-			$updates += $UpdateInfo
+			$updates += @($UpdateInfo)
 
 			Write-Host "Update: $($Update.Title)" -ForegroundColor Yellow
 			Write-Host "  KB Article: $($UpdateInfo.KB)"
@@ -106,7 +106,7 @@ function Get-PendingUpdates {
 			Write-Host "  Categories: $($UpdateInfo.Categories)`n" -ForegroundColor Gray
 		}
 
-		return $updates
+		return @($updates)
 	}
 	catch {
 		Write-Host "ERROR: Failed to scan for updates: $_" -ForegroundColor Red
@@ -142,6 +142,16 @@ function Get-UpdateCategories {
 	return ""
 }
 
+function Truncate-Value {
+	param([string]$Value)
+
+	$MaxLength = 16000
+	if ($Value -and $Value.Length -gt $MaxLength) {
+		return $Value.Substring(0, $MaxLength)
+	}
+	return $Value
+}
+
 function Store-UpdatesToRegistry {
 	param([object[]]$Updates)
 
@@ -160,13 +170,24 @@ function Store-UpdatesToRegistry {
 			$Update = $Updates[$i]
 			$IndexPrefix = "Update$($i + 1)_"
 
-			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Title" -Value (if ($Update.Title) { $Update.Title } else { "" }) -ErrorAction Stop
-			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Description" -Value (Truncate-Value -Value (if ($Update.Description) { $Update.Description } else { "" })) -ErrorAction Stop
-			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)KB" -Value (if ($Update.KB) { $Update.KB } else { "N/A" }) -ErrorAction Stop
+			$Title = if ($Update.Title) { $Update.Title } else { "" }
+			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Title" -Value $Title -ErrorAction Stop
+
+			$Description = if ($Update.Description) { $Update.Description } else { "" }
+			$Description = Truncate-Value -Value $Description
+			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Description" -Value $Description -ErrorAction Stop
+
+			$KB = if ($Update.KB) { $Update.KB } else { "N/A" }
+			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)KB" -Value $KB -ErrorAction Stop
+
 			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Mandatory" -Value $Update.Mandatory.ToString() -ErrorAction Stop
 			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Hidden" -Value $Update.Hidden.ToString() -ErrorAction Stop
-			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Deadline" -Value (if ($Update.Deadline) { $Update.Deadline } else { "N/A" }) -ErrorAction Stop
-			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Categories" -Value (if ($Update.Categories) { $Update.Categories } else { "" }) -ErrorAction Stop
+
+			$Deadline = if ($Update.Deadline) { $Update.Deadline } else { "N/A" }
+			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Deadline" -Value $Deadline -ErrorAction Stop
+
+			$Categories = if ($Update.Categories) { $Update.Categories } else { "" }
+			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Categories" -Value $Categories -ErrorAction Stop
 		}
 
 		Write-Host "Data stored in registry at: $RegPathString`n" -ForegroundColor Green
@@ -177,15 +198,6 @@ function Store-UpdatesToRegistry {
 	}
 }
 
-function Truncate-Value {
-	param([string]$Value)
-
-	$MaxLength = 16000
-	if ($Value.Length -gt $MaxLength) {
-		return $Value.Substring(0, $MaxLength)
-	}
-	return $Value
-}
 
 function Show-RegistryResults {
 	Write-Host "`n=== Registry Contents ===" -ForegroundColor Cyan
@@ -313,13 +325,13 @@ function Main {
 			Write-Host "Scanning for Windows updates...`n" -ForegroundColor Cyan
 			Clear-RegistryKey
 
-			$Updates = Get-PendingUpdates
+			$Updates = @(Get-PendingUpdates)
 
-			if ($Updates.Count -gt 0) {
+			if (@($Updates).Count -gt 0) {
 				Store-UpdatesToRegistry -Updates $Updates
 
 				Write-Host "Scan completed successfully." -ForegroundColor Green
-				Write-Host "Found $($Updates.Count) pending update(s)." -ForegroundColor Green
+				Write-Host "Found $(@($Updates).Count) pending update(s)." -ForegroundColor Green
 				Write-Host "Results stored in: $RegPathString" -ForegroundColor Green
 			} else {
 				Write-Host "No pending updates found." -ForegroundColor Yellow
