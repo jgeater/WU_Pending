@@ -6,47 +6,83 @@
 - Clears previous scan data before each run
 - Works with HKEY_LOCAL_MACHINE\SOFTWARE\Pending updates
 
+## Available Versions
+
+### PowerShell Version (Recommended - No Dependencies)
+- **WU_Pending.ps1** - Pure PowerShell implementation
+- No external modules required
+- No .NET Framework needed
+- Full-featured with command-line parameters
+
+### C# Version (Console Application)
+- **WU_Pending.exe** - Compiled console application
+- Requires .NET Framework 4.7.2
+- Located in bin\Debug folder after building
+
 ## Files Included
 
-### Core Application
-- **WU_Pending.exe** - The main executable (located in bin\Debug after building)
+### PowerShell Scripts
+- **WU_Pending.ps1** - Main PowerShell implementation (recommended)
+- **RunPowerShell.bat** - Batch file launcher for easy execution
+- No external module downloads required
+
+### C# Console Application
+- **WU_Pending.exe** - The executable (located in bin\Debug after building)
 - **Program.cs** - Source code implementation
+- **WU_Pending.csproj** - Project configuration
+
+### Helper Scripts
+- **RunAsAdmin.bat** - Launcher for C# executable version
+- **CheckRegistry.bat** - View existing registry entries without scanning
+
+### Documentation
 - **README.md** - Comprehensive documentation
-
-### Runner Scripts (Choose One Way to Run)
-
-#### 1. **RunAsAdmin.bat** (EASIEST - Recommended)
-   - Double-click to run
-   - Automatically requests administrator privileges
-   - Scans for updates and displays results
-   - Shows registry entries
-   - **Best for**: Users who want a simple one-click solution
-
-#### 2. **Run-UpdateScan.ps1** (ADVANCED - Recommended for scripting)
-   - PowerShell script with parameters
-   - Usage: `.\Run-UpdateScan.ps1`
-   - Options:
-	 - No parameters: Run scan and show results
-	 - `-CheckOnly`: Display registry results without scanning
-	 - `-DeleteRegistry`: Delete the registry key
-   - **Best for**: Automation and scheduled tasks
-
-#### 3. **CheckRegistry.bat** (Viewing only)
-   - View existing registry entries without running scan
-   - No admin privilege required for viewing (if registry is accessible)
-   - **Best for**: Checking previous scan results
-
-### Configuration Files
-- **WU_Pending.csproj** - Project configuration (includes COM reference to WUApiLib)
-- **App.config** - Application configuration
-- **Properties\AssemblyInfo.cs** - Assembly metadata
+- **QUICKSTART.md** - This quick start guide
 
 ## Quick Start
 
-### First Time Setup (Build from Source)
+### Method 1: PowerShell (Easiest - Recommended)
+
+**One-Click Execution:**
+1. Navigate to: `C:\Users\jgeat\source\repos\WU_Pending\WU_Pending`
+2. Double-click `RunPowerShell.bat`
+3. Click "Yes" when prompted for admin privileges
+4. Wait for scan to complete
+
+**Direct PowerShell Commands:**
+```powershell
+cd C:\Users\jgeat\source\repos\WU_Pending\WU_Pending
+
+# Run full scan
+.\WU_Pending.ps1
+
+# Check previous results without scanning
+.\WU_Pending.ps1 -CheckOnly
+
+# Delete registry data
+.\WU_Pending.ps1 -DeleteRegistry
+
+# Only clear without scanning
+.\WU_Pending.ps1 -ClearOnly
+```
+
+### Method 2: C# Console Application
+
+**Option A: Batch File (Easiest)**
+1. Navigate to: `C:\Users\jgeat\source\repos\WU_Pending\WU_Pending`
+2. Double-click `RunAsAdmin.bat`
+3. Click "Yes" when prompted for admin privileges
+
+**Option B: Command Line**
+```cmd
+cd C:\Users\jgeat\source\repos\WU_Pending\WU_Pending\bin\Debug
+WU_Pending.exe
+```
+
+**Option C: Build from Source First (if not already built)**
 1. Open `WU_Pending.sln` in Visual Studio
 2. Click "Build" → "Build Solution" (or press Ctrl+F7)
-3. Once built, proceed to Running section below
+3. Then use Method 2 Option B above
 
 ### Running the Utility
 
@@ -115,26 +151,46 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Pending updates
 
 ## Common Tasks
 
-### Run Scan and View Results
+### Run Full Scan (PowerShell)
+```powershell
+.\WU_Pending.ps1
+```
+
+### Check Previous Results Without Scanning (PowerShell)
+```powershell
+.\WU_Pending.ps1 -CheckOnly
+```
+
+### Delete Registry Data (PowerShell)
+```powershell
+.\WU_Pending.ps1 -DeleteRegistry
+```
+
+### Clear Registry Only (PowerShell)
+```powershell
+.\WU_Pending.ps1 -ClearOnly
+```
+
+### Run Scan and View Results (C# Executable)
 ```
 RunAsAdmin.bat
 ```
 
-### Just Check Previous Scan Results
+### Just Check Previous Scan Results (C# Executable)
 ```
 CheckRegistry.bat
 ```
-or
-```
-PowerShell> .\Run-UpdateScan.ps1 -CheckOnly
-```
-
-### Delete Registry Data
-```
-PowerShell> .\Run-UpdateScan.ps1 -DeleteRegistry
-```
 
 ### Schedule Regular Scans (Windows Task Scheduler)
+
+**For PowerShell Script:**
+1. Open Task Scheduler
+2. Create new task
+3. Set to run: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "C:\Users\jgeat\source\repos\WU_Pending\WU_Pending\WU_Pending.ps1"`
+4. Set to run with highest privileges
+5. Set schedule (daily, weekly, etc.)
+
+**For C# Executable:**
 1. Open Task Scheduler
 2. Create new task
 3. Set to run: `C:\Users\jgeat\source\repos\WU_Pending\WU_Pending\bin\Debug\WU_Pending.exe`

@@ -3,6 +3,8 @@
 ## Overview
 This utility scans your system for pending Windows updates and stores the results in the Windows Registry at `HKEY_LOCAL_MACHINE\SOFTWARE\Pending updates`.
 
+You can use either the **C# Console Application** or the **PowerShell Script** version - both provide identical functionality.
+
 ## Features
 - ✅ Scans for all pending Windows updates
 - ✅ Clears previous scan results before each run
@@ -16,28 +18,60 @@ This utility scans your system for pending Windows updates and stores the result
   - Categories
   - Scan timestamp
   - Total update count
+- ✅ No external dependencies or module downloads required
+- ✅ Available in both C# and PowerShell versions
 
 ## Requirements
 - **Windows 10/11** with Windows Update service enabled
 - **Administrator privileges** (required for registry write access)
-- **.NET Framework 4.7.2** or higher
+- **Option A (C#)**: .NET Framework 4.7.2 or higher
+- **Option B (PowerShell)**: PowerShell 3.0+ (built into Windows 10/11)
 
 ## Installation & Usage
 
-### Option 1: Run with Administrator Privileges (Recommended for Registry Operations)
-1. Navigate to the `WU_Pending` project folder
+### Option A: Using PowerShell Script (Recommended - No .NET required)
+
+#### Easiest Method - Batch File Launcher
+1. Navigate to: `C:\Users\jgeat\source\repos\WU_Pending\WU_Pending`
+2. Double-click `RunPowerShell.bat`
+3. Click "Yes" when prompted for administrator privileges
+4. The utility will scan and display results
+
+#### Or Run PowerShell Script Directly
+```powershell
+# With admin privileges, run:
+.\WU_Pending.ps1
+
+# Check previous scan results without scanning:
+.\WU_Pending.ps1 -CheckOnly
+
+# Delete registry data:
+.\WU_Pending.ps1 -DeleteRegistry
+
+# Only clear registry without scanning:
+.\WU_Pending.ps1 -ClearOnly
+```
+
+### Option B: Using C# Executable
+
+#### Batch File Launcher (Recommended)
+1. Navigate to: `C:\Users\jgeat\source\repos\WU_Pending\WU_Pending`
 2. Double-click `RunAsAdmin.bat`
 3. Click "Yes" when prompted for administrator privileges
 4. The utility will scan for updates and display results
-5. Registry entries will be created at: `HKEY_LOCAL_MACHINE\SOFTWARE\Pending updates`
 
-### Option 2: Run from Command Line
+#### Or Run from Command Line
 ```
 cd C:\Users\jgeat\source\repos\WU_Pending\WU_Pending\bin\Debug
 WU_Pending.exe
 ```
 
-**Note:** Running without administrator privileges may result in registry access errors.
+### Option 3: Run from Visual Studio
+1. Open the solution in Visual Studio
+2. Right-click the project and select "Build"
+3. Open Command Prompt as Administrator
+4. Navigate to `bin\Debug` folder
+5. Run `WU_Pending.exe`
 
 ### Option 3: Run from Visual Studio
 1. Open the solution in Visual Studio
