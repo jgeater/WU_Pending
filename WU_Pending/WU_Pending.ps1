@@ -89,8 +89,8 @@ function Get-PendingUpdates {
 
 		foreach ($Update in $SearchResult.Updates) {
 			$UpdateInfo = [PSCustomObject]@{
-				Title = $Update.Title
-				Description = $Update.Description
+				Title = if ($Update.Title) { $Update.Title } else { "" }
+				Description = if ($Update.Description) { $Update.Description } else { "" }
 				KB = (Get-KBArticleID -Update $Update)
 				Mandatory = $Update.IsMandatory
 				Hidden = $Update.IsHidden
@@ -160,13 +160,13 @@ function Store-UpdatesToRegistry {
 			$Update = $Updates[$i]
 			$IndexPrefix = "Update$($i + 1)_"
 
-			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Title" -Value ($Update.Title ?? "") -ErrorAction Stop
-			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Description" -Value (Truncate-Value -Value ($Update.Description ?? "")) -ErrorAction Stop
-			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)KB" -Value ($Update.KB ?? "N/A") -ErrorAction Stop
+			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Title" -Value (if ($Update.Title) { $Update.Title } else { "" }) -ErrorAction Stop
+			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Description" -Value (Truncate-Value -Value (if ($Update.Description) { $Update.Description } else { "" })) -ErrorAction Stop
+			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)KB" -Value (if ($Update.KB) { $Update.KB } else { "N/A" }) -ErrorAction Stop
 			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Mandatory" -Value $Update.Mandatory.ToString() -ErrorAction Stop
 			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Hidden" -Value $Update.Hidden.ToString() -ErrorAction Stop
-			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Deadline" -Value ($Update.Deadline ?? "N/A") -ErrorAction Stop
-			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Categories" -Value ($Update.Categories ?? "") -ErrorAction Stop
+			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Deadline" -Value (if ($Update.Deadline) { $Update.Deadline } else { "N/A" }) -ErrorAction Stop
+			Set-ItemProperty -Path $RegistryPath -Name "$($IndexPrefix)Categories" -Value (if ($Update.Categories) { $Update.Categories } else { "" }) -ErrorAction Stop
 		}
 
 		Write-Host "Data stored in registry at: $RegPathString`n" -ForegroundColor Green
@@ -199,7 +199,7 @@ function Show-RegistryResults {
 			if ($Props.ScanDate) {
 				Write-Host "Scan Date: $($Props.ScanDate)" -ForegroundColor Green
 			}
-			if ($Props.UpdateCount) {
+			if ($null -ne $Props.UpdateCount) {
 				Write-Host "Total Updates: $($Props.UpdateCount)" -ForegroundColor Green
 			}
 
@@ -211,41 +211,41 @@ function Show-RegistryResults {
 					Write-Host "--- Update $i ---" -ForegroundColor Yellow
 
 					$TitleKey = "Update${i}_Title"
-					if ($Props.$TitleKey) {
+					if ($Props.PSObject.Properties.Name -contains $TitleKey) {
 						Write-Host "Title: $($Props.$TitleKey)"
 					}
 
 					$KBKey = "Update${i}_KB"
-					if ($Props.$KBKey) {
+					if ($Props.PSObject.Properties.Name -contains $KBKey) {
 						Write-Host "KB Article: $($Props.$KBKey)"
 					}
 
 					$MandatoryKey = "Update${i}_Mandatory"
-					if ($Props.$MandatoryKey) {
+					if ($Props.PSObject.Properties.Name -contains $MandatoryKey) {
 						Write-Host "Mandatory: $($Props.$MandatoryKey)"
 					}
 
 					$HiddenKey = "Update${i}_Hidden"
-					if ($Props.$HiddenKey) {
+					if ($Props.PSObject.Properties.Name -contains $HiddenKey) {
 						Write-Host "Hidden: $($Props.$HiddenKey)"
 					}
 
 					$CategoriesKey = "Update${i}_Categories"
-					if ($Props.$CategoriesKey) {
+					if ($Props.PSObject.Properties.Name -contains $CategoriesKey) {
 						Write-Host "Categories: $($Props.$CategoriesKey)"
 					}
 
 					$DeadlineKey = "Update${i}_Deadline"
-					if ($Props.$DeadlineKey) {
+					if ($Props.PSObject.Properties.Name -contains $DeadlineKey) {
 						Write-Host "Deadline: $($Props.$DeadlineKey)"
 					}
 
 					$DescKey = "Update${i}_Description"
-					if ($Props.$DescKey) {
+					if ($Props.PSObject.Properties.Name -contains $DescKey) {
 						$Desc = $Props.$DescKey
-						if ($Desc.Length -gt 100) {
+						if ($Desc -and $Desc.Length -gt 100) {
 							Write-Host "Description: $($Desc.Substring(0, 100))..."
-						} else {
+						} elseif ($Desc) {
 							Write-Host "Description: $Desc"
 						}
 					}
@@ -260,7 +260,7 @@ function Show-RegistryResults {
 			Write-Host "`n=== All Registry Values ===" -ForegroundColor Cyan
 			Get-Item -Path $RegistryPath | Select-Object -ExpandProperty Property | ForEach-Object {
 				$Value = (Get-ItemProperty -Path $RegistryPath).$_
-				if ($Value.Length -gt 80) {
+				if ($Value -and ($Value -is [string]) -and $Value.Length -gt 80) {
 					Write-Host "$($_): $($Value.Substring(0, 80))..." -ForegroundColor White
 				} else {
 					Write-Host "$($_): $Value" -ForegroundColor White

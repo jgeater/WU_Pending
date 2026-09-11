@@ -61,10 +61,14 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="CheckRegistry.bat" />
+    <None Include="GETTING_STARTED.md" />
+    <None Include="POWERSHELL_IMPLEMENTATION.md" />
     <None Include="QUICKSTART.md" />
     <None Include="README.md" />
-    <None Include="Run-UpdateScan.ps1" />
     <None Include="RunAsAdmin.bat" />
+    <None Include="RunPowerShell.bat" />
+    <None Include="WU_Pending.ps1" />
+    <None Include="WU_Pending_PowerShell.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="refresh.ico" />

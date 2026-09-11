@@ -29,7 +29,9 @@ You can use either the **C# Console Application** or the **PowerShell Script** v
 
 ## Installation & Usage
 
-### Option A: Using PowerShell Script (Recommended - No .NET required)
+### ⭐ Recommended: PowerShell Script - Fully Standalone
+
+The **WU_Pending.ps1** script is completely standalone with **NO dependency on the C# executable**.
 
 #### Easiest Method - Batch File Launcher
 1. Navigate to: `C:\Users\jgeat\source\repos\WU_Pending\WU_Pending`
@@ -39,46 +41,47 @@ You can use either the **C# Console Application** or the **PowerShell Script** v
 
 #### Or Run PowerShell Script Directly
 ```powershell
-# With admin privileges, run:
+cd C:\Users\jgeat\source\repos\WU_Pending\WU_Pending
+
+# Full scan and store results in registry
 .\WU_Pending.ps1
 
-# Check previous scan results without scanning:
+# Check previous scan results without scanning
 .\WU_Pending.ps1 -CheckOnly
 
-# Delete registry data:
+# Delete registry data completely
 .\WU_Pending.ps1 -DeleteRegistry
 
-# Only clear registry without scanning:
+# Only clear registry without scanning
 .\WU_Pending.ps1 -ClearOnly
 ```
 
-### Option B: Using C# Executable
+**Why PowerShell is Recommended:**
+- ✅ No .NET Framework needed
+- ✅ No compilation required
+- ✅ Runs immediately
+- ✅ Easy to customize
+- ✅ Parameter support
+- ✅ Same registry output as C# version
 
-#### Batch File Launcher (Recommended)
+### Alternative: Using C# Executable
+
+If you prefer a compiled executable instead of PowerShell:
+
+#### Batch File Launcher
 1. Navigate to: `C:\Users\jgeat\source\repos\WU_Pending\WU_Pending`
 2. Double-click `RunAsAdmin.bat`
 3. Click "Yes" when prompted for administrator privileges
 4. The utility will scan for updates and display results
 
 #### Or Run from Command Line
-```
+```cmd
 cd C:\Users\jgeat\source\repos\WU_Pending\WU_Pending\bin\Debug
 WU_Pending.exe
 ```
 
-### Option 3: Run from Visual Studio
-1. Open the solution in Visual Studio
-2. Right-click the project and select "Build"
-3. Open Command Prompt as Administrator
-4. Navigate to `bin\Debug` folder
-5. Run `WU_Pending.exe`
+**Note:** C# executable requires .NET Framework 4.7.2 to be installed.
 
-### Option 3: Run from Visual Studio
-1. Open the solution in Visual Studio
-2. Right-click the project and select "Build"
-3. Open Command Prompt as Administrator
-4. Navigate to `bin\Debug` folder
-5. Run `WU_Pending.exe`
 
 ## Output
 
